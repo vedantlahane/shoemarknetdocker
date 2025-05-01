@@ -15,9 +15,8 @@ pipeline {
     }
 
     triggers {
-        cron('H 0 * * *')           // Nightly build at midnight
-        pollSCM('H/5 * * * *')      // Poll SCM every 5 minutes
-        githubPush()                // Trigger on GitHub push events
+        githubPush() // Only trigger on GitHub push events
+        // Remove pollSCM and cron if not needed
     }
 
     stages {
@@ -32,8 +31,7 @@ pipeline {
             steps {
                 dir('backend') {
                     sh 'npm install'
-                    // Uncomment if you have tests
-                    // sh 'npm test'
+                    // sh 'npm test' // Uncomment when tests are available
                 }
             }
         }
@@ -42,15 +40,14 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm install'
-                    // Uncomment if you have tests
-                    // sh 'npm run test'
+                    // sh 'npm run test' // Uncomment when tests are available
                 }
             }
         }
 
         stage('Create .env File') {
             steps {
-                script {
+                dir('backend') {
                     writeFile file: '.env', text: """
 MONGODB_URI=${env.MONGODB_URI}
 JWT_SECRET=${env.JWT_SECRET}
@@ -71,6 +68,7 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
             steps {
                 sh 'docker-compose down || true'
                 sh 'docker-compose up --build -d'
+                // sh 'docker-compose logs' // Uncomment for debugging
             }
         }
     }
