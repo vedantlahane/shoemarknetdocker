@@ -15,23 +15,24 @@ pipeline {
     }
 
     triggers {
-        githubPush() // Only trigger on GitHub push events
-        // Remove pollSCM and cron if not needed
+        githubPush()
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/vedantlahane/shoemarknetdocker.git',
-                    credentialsId: 'PAT'
+                    credentialsId: 'PAT',
+                    branch: 'main'  // Explicit branch declaration
             }
         }
 
         stage('Install Dependencies & Test Backend') {
             steps {
                 dir('backend') {
-                    sh 'npm install'
-                    // sh 'npm test' // Uncomment when tests are available
+                    sh 'npm install --verbose'  // Added verbose flag
+                    sh 'npm ls --depth=0'       // Verify installed dependencies
+                    // sh 'npm test'
                 }
             }
         }
@@ -39,8 +40,9 @@ pipeline {
         stage('Install Dependencies & Test Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'npm install'
-                    // sh 'npm run test' // Uncomment when tests are available
+                    sh 'npm install --verbose'
+                    sh 'npm ls --depth=0'
+                    // sh 'npm run test'
                 }
             }
         }
@@ -60,6 +62,7 @@ NODE_ENV=${env.NODE_ENV}
 LOG_LEVEL=${env.LOG_LEVEL}
 CORS_ORIGIN=${env.CORS_ORIGIN}
 """
+                    sh 'cat .env | grep -v SECRET'  // Verify .env (exclude secrets)
                 }
             }
         }
@@ -67,14 +70,18 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
         stage('Build & Deploy with Docker Compose') {
             steps {
                 sh 'docker-compose down || true'
-                sh 'docker-compose up --build -d'
-                // sh 'docker-compose logs' // Uncomment for debugging
+                sh 'docker-compose build --no-cache'  // Force clean rebuild
+                sh 'docker-compose up -d'
+                sh 'docker-compose logs -f & sleep 30'  // Stream logs for 30s
+                sh 'docker ps -a'  // Verify container status
             }
         }
     }
 
     post {
         always {
+            sh 'docker-compose logs backend'  // Capture backend logs
+            sh 'docker-compose logs frontend' // Capture frontend logs
             sh 'docker system prune -f'
         }
     }
