@@ -77,4 +77,15 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
     triggers {
         cron('H 0 * * *') // Adjust the schedule as needed
     }
+
+    triggers {
+        pollSCM('H/5 * * * *') // Poll SCM every 5 minutes
+    }
+    triggers {
+        githubPush() // Trigger on GitHub push events
+    }
+
+
+    
+    
 }
