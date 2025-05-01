@@ -173,6 +173,7 @@ const Register = () => {
               <option value="facebook">Facebook</option>
               <option value="instagram">Instagram</option>
               <option value="referral">Friend Referral</option>
+              <option value="advertisement">Advertisement</option>
               <option value="other">Other</option>
             </select>
           </div>
