@@ -14,10 +14,17 @@ pipeline {
         CORS_ORIGIN = 'http://localhost:5173'
     }
 
+    triggers {
+        cron('H 0 * * *')           // Nightly build at midnight
+        pollSCM('H/5 * * * *')      // Poll SCM every 5 minutes
+        githubPush()                // Trigger on GitHub push events
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/vedantlahane/shoemarknetdocker.git'
+                git url: 'https://github.com/vedantlahane/shoemarknetdocker.git',
+                    credentialsId: 'PAT'
             }
         }
 
@@ -73,19 +80,4 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
             sh 'docker system prune -f'
         }
     }
-
-    triggers {
-        cron('H 0 * * *') // Adjust the schedule as needed
-    }
-
-    triggers {
-        pollSCM('H/5 * * * *') // Poll SCM every 5 minutes
-    }
-    triggers {
-        githubPush() // Trigger on GitHub push events
-    }
-
-
-    
-    
 }
