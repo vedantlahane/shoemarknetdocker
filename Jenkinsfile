@@ -73,4 +73,8 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
             sh 'docker system prune -f'
         }
     }
+
+    triggers {
+        cron('H 0 * * *') // Adjust the schedule as needed
+    }
 }
