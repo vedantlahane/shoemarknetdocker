@@ -23,6 +23,12 @@ pipeline {
     }
 
     stages {
+        stage('Debug Env') {
+    steps {
+        sh 'printenv | grep JWT_SECRET || echo "JWT_SECRET not set"'
+    }
+}
+
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/vedantlahane/shoemarknetdocker.git',
