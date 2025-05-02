@@ -79,10 +79,17 @@ CORS_ORIGIN=${env.CORS_ORIGIN}
     }
 
     post {
-        always {
-            sh 'docker-compose logs backend'  // Capture backend logs
-            sh 'docker-compose logs frontend' // Capture frontend logs
-            sh 'docker system prune -f'
+    always {
+        script {
+            if (getContext(hudson.FilePath)) {
+                sh 'docker-compose logs backend'
+                sh 'docker-compose logs frontend'
+                sh 'docker system prune -f'
+            } else {
+                echo "No workspace available in post block."
+            }
         }
     }
+}
+
 }
