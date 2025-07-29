@@ -1,0 +1,2 @@
+environment:
+  - VITE_API_URL=http://localhost:${BACKEND_LOCAL_PORT}
